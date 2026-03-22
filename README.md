@@ -55,6 +55,7 @@ O código completo está disponível em [github.com/altashoras-franskk/Tabom-T4P
 ## O Dashboard — Como Ler e Usar
 
 O Mindhive Dashboard opera em três camadas integradas. Cada uma oferece uma forma diferente de interagir com a pesquisa.
+link: https://altashoras-franskk.github.io/expanded-perception/
 
 ### 🌿 Rizoma
 
