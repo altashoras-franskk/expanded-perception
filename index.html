@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mindhive — Pesquisa Recursiva Aplicada</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    #root { width: 100%; height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useReducer } = React;
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONCEPT DATA — reconfigurado 2026-03-22 (Modo Recursivo: observação → reconfiguração)
+// Grupos: eixo (espinha do argumento) · operacoes (o que a T4P faz) · fundamentos (fontes diretas)
+//         linhagem (tradição IA) · conceitos (pontes entre tradições)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CONCEPTS = [
+  // ── EIXO — a espinha dorsal do argumento ──
+  { id: "tese", label: "tese candidata", group: "eixo", subtitle: "a afirmação central da pesquisa", weight: 10, status: "tese",
+    theory: "Sistemas que se observam enquanto operam produzem formas de conhecimento inacessíveis à análise linear. Os índices de complexidade da T4P demonstram: emergem em tempo real, imprevisíveis pela análise estática do código. A formalização vem de Ashby: ferramentas lineares não têm variedade suficiente para absorver o que o sistema produz." },
+  { id: "fissura", label: "fissura", group: "eixo", subtitle: "o que 'inacessível' significa operacionalmente", weight: 10, status: "hipótese",
+    theory: "'Inacessível à análise linear' precisa de definição operacional. Candidato empírico: os índices de complexidade (dialógica, hologramático, recursivo) emergem em tempo real e não são previsíveis pela análise do código-fonte. Candidato formal (Ashby): ferramentas lineares têm variedade insuficiente para absorver a variedade do sistema — impossibilidade cibernética, não falha de implementação. Ambos são hipótese até formalização cruzada." },
+  { id: "monopolio-linearidade", label: "monopólio da linearidade", group: "eixo", subtitle: "o problema que a pesquisa ataca", weight: 9, status: "tese",
+    theory: "Linearidade como regime epistemológico hegemônico. Exclui formas de conhecimento recursivas, emergentes, não-lineares. Ashby formaliza o déficit de variedade: ferramentas que processam sequencialmente têm variedade menor que sistemas que operam em múltiplas dimensões simultâneas. O passo argumentativo: linearidade implica sequencialidade → sequencialidade implica variedade reduzida → variedade reduzida não absorve complexidade (Ashby) → logo, ferramentas lineares são cibernéticamente incapazes de perceber complexidade. A T4P é resposta operacional.",
+    keyWorks: ["T4P Proposta v1", "Ashby — Requisite Variety (1958)"] },
+  { id: "extended-perception", label: "percepção estendida", group: "eixo", subtitle: "contribuição original candidata — extended perception thesis", weight: 9, status: "hipótese",
+    theory: "Se Clark demonstra Extended Mind, a T4P demonstra Extended Perception — percepção estendida. Argumento via parity principle (Clark & Chalmers 1998): se o pesquisador pudesse computar mentalmente os índices dialógica/hologramático em tempo real, chamaria de percepção de complexidade; a T4P faz isso externamente; pelo parity principle, é percepção estendida. Hutchins fornece base empírica: cognição distribuída entre humano e ferramenta. De 'ferramentas são lentes' para 'ferramentas são órgãos perceptivos estendidos'. Status: hipótese forte, precisa formalização no paper.",
+    keyWorks: ["Clark & Chalmers — The Extended Mind (1998)", "Hutchins — Cognition in the Wild (1995)", "T4P Proposta v1"] },
+
+  // ── OPERAÇÕES — o que a T4P faz epistemicamente (não seus módulos de código) ──
+  { id: "motor-alife", label: "motor de vida artificial", group: "operacoes", subtitle: "substrato emergente · regras locais → complexidade global", weight: 8, status: "evidência",
+    theory: "Vida Artificial customizada: partículas com arquétipos variáveis, mutáveis e influenciáveis. Regras locais simples geram comportamento global complexo: especiação, metamorfose, mitose. O substrato que torna possível observar emergência — sem ele, não há o que perceber.",
+    keyWorks: ["Langton — Artificial Life", "Kauffman — At Home in the Universe"] },
+  { id: "indices-complexidade", label: "índices de complexidade", group: "operacoes", subtitle: "morin operacionalizado · percepção em tempo real", weight: 10, status: "evidência",
+    theory: "Mede cinco índices em tempo real: Dialógica, Recursivo, Hologramático, Tetralogia, Sapiens-Demens. Integra feedback engine (retorno recursivo de energia ao sistema). Esses índices SÓ existem enquanto o sistema opera — são o candidato principal à resolução da fissura. É variedade requisita operacionalizada: 5 dimensões simultâneas absorvendo a complexidade do sistema observado.",
+    keyWorks: ["Morin — Os Sete Saberes", "Ashby — Requisite Variety", "complexityLens.ts + feedbackEngine.ts"],
+    quote: "\"O conhecimento das informações ou dados isolados é insuficiente.\" — Morin" },
+  { id: "loop-recursivo", label: "loop recursivo central", group: "operacoes", subtitle: "a tese em código — campo↔partículas↔campo", weight: 10, status: "evidência",
+    theory: "O campo modula partículas que escrevem no campo que modula partículas. Literalmente a tese candidata implementada em TypeScript. O código É o argumento: auto-observação operando produz configurações que a análise linear do código não prevê.",
+    keyWorks: ["recursiveFieldWrapper.ts"],
+    quote: "\"O produto é produtor do que o produz.\" — Morin" },
+  { id: "musica-emergente", label: "música emergente", group: "operacoes", subtitle: "recursividade sensorial · percepção sonora de dinâmicas", weight: 7, status: "evidência",
+    theory: "Music Lab traduz dinâmicas em som: velocidade→ritmo, colisões→harmonia, padrões→melodia. A recursividade se torna sensorial — outro canal perceptivo estendido. Demonstra que a percepção de complexidade não precisa ser visual.",
+    keyWorks: ["Music Lab — T4P"] },
+  { id: "dinamicas-territoriais", label: "dinâmicas territoriais", group: "operacoes", subtitle: "territorialização · desterritorialização · linhas de fuga", weight: 6, status: "hipótese",
+    theory: "Traduz operacionalmente (não implementa) Deleuze: CsO como intensidades puras, territorialização como estabilização, linhas de fuga como vetores de transformação. Operação epistêmica: tornar visíveis processos de formação e dissolução de estrutura.",
+    keyWorks: ["Deleuze & Guattari — Mil Platôs"] },
+
+  // ── FUNDAMENTOS — fontes teóricas diretas que a T4P operacionaliza ──
+  { id: "morin", label: "edgar morin", group: "fundamentos", subtitle: "pensamento complexo · 3 operadores · 7 saberes", weight: 10, status: "evidência",
+    theory: "Três operadores: dialógica (manter contradições produtivas), recursivo organizacional (o produto é produtor do que o produz), hologramático (a parte contém o todo). Os 7 Saberes são fundamento declarado da T4P: 1) Cegueiras do conhecimento 2) Conhecimento pertinente 3) Condição humana 4) Identidade terrena 5) Enfrentar incertezas 6) Ensinar compreensão 7) Ética do gênero humano. A T4P operacionaliza os três operadores como índices mensuráveis em tempo real.",
+    keyWorks: ["O Método (6 vols)", "Os Sete Saberes", "Introdução ao Pensamento Complexo"],
+    quote: "\"Meu método consiste em aprender a navegar num oceano de incertezas entre arquipélagos de certezas.\"" },
+  { id: "deleuze", label: "deleuze & guattari", group: "fundamentos", subtitle: "rizoma · CsO · diferença e repetição", weight: 8, status: "evidência",
+    theory: "Rizoma (conexão não-hierárquica), CsO (potência não organizada), territorialização/desterritorialização. Diferença e Repetição: a repetição nunca é do mesmo. A T4P traduz operacionalmente — não implementa — esses conceitos como dinâmicas computacionais observáveis.",
+    keyWorks: ["Mil Platôs", "Diferença e Repetição", "O Anti-Édipo"],
+    quote: "\"Façam rizoma e não raiz, nunca plantem!\"" },
+  { id: "maturana-varela", label: "maturana & varela", group: "fundamentos", subtitle: "autopoiese · acoplamento estrutural", weight: 8, status: "evidência",
+    theory: "Autopoiese: sistemas vivos se produzem a si mesmos continuamente. O sistema é simultaneamente produto e produtor. Conhecer = viver = fazer. O motor ALife da T4P é literalmente autopoiético: partículas auto-organizadas que se produzem enquanto operam.",
+    keyWorks: ["Autopoiesis and Cognition", "A Árvore do Conhecimento"],
+    quote: "\"Tudo o que é dito é dito por um observador.\" — Maturana" },
+  { id: "von-foerster", label: "heinz von foerster", group: "fundamentos", subtitle: "cibernética de 2ª ordem · observador no sistema", weight: 8, status: "evidência",
+    theory: "Cibernética de 2ª ordem inclui o observador no sistema observado. A T4P é cibernética de 2ª ordem operando: o 4º loop (Usuário↔Sistema) + meta-loop (Criador↔Ferramenta). O usuário/criador não está fora — está dentro do loop recursivo.",
+    keyWorks: ["Observing Systems", "Understanding Understanding"],
+    quote: "\"A objectividade é a ilusão de que as observações podem ser feitas sem um observador.\"" },
+  { id: "hofstadter", label: "douglas hofstadter", group: "fundamentos", subtitle: "strange loops · tangled hierarchies", weight: 7, status: "evidência",
+    theory: "Strange loop: hierarquia emaranhada onde ao subir todos os níveis retornamos ao ponto de partida — transformados. Os 4 loops recursivos aninhados da T4P são strange loops operacionais: autoconsciência implementada como dinâmica computacional.",
+    keyWorks: ["Gödel, Escher, Bach", "I Am a Strange Loop"],
+    quote: "\"We are self-perceiving, self-inventing, locked-in mirages that are little miracles of self-reference.\"" },
+  { id: "meadows", label: "donella meadows", group: "fundamentos", subtitle: "pontos de alavancagem · feedback loops", weight: 7, status: "evidência",
+    theory: "12 pontos de alavancagem: os lugares onde uma pequena mudança produz grande efeito. Loops de retroalimentação são a anatomia de todo sistema dinâmico. Os índices de complexidade da T4P tornam visíveis os feedback loops e pontos de alavancagem em tempo real.",
+    keyWorks: ["Thinking in Systems", "12 Leverage Points"],
+    quote: "\"A gente não pode controlar sistemas. Pode dançar com eles.\"" },
+  { id: "jung", label: "carl jung", group: "fundamentos", subtitle: "imaginação ativa · psique como sistema recursivo", weight: 4, status: "hipótese",
+    theory: "O Livro Vermelho é laboratório alquímico — a psique se observa enquanto opera. Arquétipos como campos atratores do inconsciente coletivo. Conexão periférica: fundamenta o Psyche Lab da T4P, não o argumento central.",
+    keyWorks: ["Liber Novus", "Psicologia e Alquimia"],
+    quote: "\"Quem olha para fora, sonha; quem olha para dentro, desperta.\"" },
+  { id: "barthes", label: "roland barthes", group: "fundamentos", subtitle: "fascismo linguístico · semiótica", weight: 4, status: "hipótese",
+    theory: "A linguagem é fascista: obriga a falar de certa maneira. Na T4P, a linguagem emergente subverte — glifos nascem da interação, não da imposição. Conexão periférica: sustenta a operação de linguagem emergente, não o argumento central.",
+    keyWorks: ["Aula Inaugural", "Mitologias", "S/Z"],
+    quote: "\"A língua é simplesmente: fascista.\"" },
+  { id: "luhmann", label: "niklas luhmann", group: "fundamentos", subtitle: "autopoiese social · observação de 2ª ordem", weight: 4, status: "hipótese",
+    theory: "Aplica autopoiese aos sistemas sociais. Cada sistema observa a partir de sua própria distinção. Complexidade é reduzida por seleção, nunca eliminada. Conexão periférica: sustenta o Sociogenesis Lab, não o argumento central.",
+    keyWorks: ["Sistemas Sociais", "A Sociedade da Sociedade"] },
+
+  // ── LINHAGEM — tradição Intelligence Amplification (IA) ──
+  { id: "engelbart", label: "douglas engelbart", group: "linhagem", subtitle: "augmenting human intellect · avô técnico da T4P", weight: 9, status: "evidência",
+    theory: "O intelecto humano pode ser sistematicamente amplificado por ferramentas. Framework de 4 camadas: artefatos, linguagem, metodologia, treinamento. A amplificação não está na ferramenta — está no sistema humano-ferramenta operando junto. Avô técnico da T4P: mesma lógica de augmentation, deslocada do produtivo-industrial para o epistêmico-perceptivo.",
+    keyWorks: ["Augmenting Human Intellect (1962)", "The Mother of All Demos (1968)"],
+    quote: "\"The digital revolution is far more significant than the invention of writing or even of printing.\"" },
+  { id: "ashby", label: "w. ross ashby", group: "linhagem", subtitle: "lei da variedade requisita · formalização do problema", weight: 10, status: "evidência",
+    theory: "Lei da Variedade Requisita: 'only variety can absorb variety'. Formulada para sistemas de controle — aplicação à percepção é extensão analógica que o paper precisa argumentar. O que se sustenta sem ressalva: ferramentas lineares (sequenciais, unidimensionais) têm variedade insuficiente para absorver a variedade de sistemas complexos. O que precisa de argumento: que a T4P tem variedade perceptiva suficiente — isso é claim empírica, não decorrência direta do teorema. Formaliza o 'monopólio da linearidade' como déficit de variedade, elevando de opinião a princípio cibernético.",
+    keyWorks: ["An Introduction to Cybernetics (1956)", "Design for a Brain (1952)", "Requisite Variety (1958)"],
+    quote: "\"Only variety can absorb variety.\"" },
+  { id: "licklider", label: "j.c.r. licklider", group: "linhagem", subtitle: "simbiose humano-máquina · co-determinação", weight: 6, status: "evidência",
+    theory: "Nem o humano é mestre, nem a máquina — operam como sistema acoplado. O sistema humano+máquina tem propriedades que nenhum dos dois tem sozinho. Acoplamento estrutural (Maturana/Varela) dito em linguagem de engenharia.",
+    keyWorks: ["Man-Computer Symbiosis (1960)", "The Computer as a Communication Device (1968)"] },
+  { id: "andy-clark", label: "andy clark", group: "linhagem", subtitle: "extended mind · parity principle · natural-born cyborgs", weight: 9, status: "evidência",
+    theory: "Humanos são ciborgues natos — sempre usaram ferramentas como extensões cognitivas. A mente se estende para além do crânio. Se o caderno é mente estendida, os índices de complexidade da T4P são percepção estendida. Fundamenta a tese de Percepção Estendida como extensão de programa filosófico existente.",
+    keyWorks: ["Natural-Born Cyborgs (2003)", "Supersizing the Mind (2008)", "Surfing Uncertainty (2015)"],
+    quote: "\"We are natural-born cyborgs.\"" },
+  { id: "bateson", label: "gregory bateson", group: "linhagem", subtitle: "ecologia da mente · informação como diferença", weight: 7, status: "evidência",
+    theory: "Informação é 'a difference that makes a difference'. A mente não está no indivíduo — está no sistema. Liga Clark, Maturana, Engelbart e Ashby: a mente como sistema distribuído, não como processador interno. A ecologia da mente dissolve a fronteira entre observador e sistema.",
+    keyWorks: ["Steps to an Ecology of Mind (1972)", "Mind and Nature (1979)"],
+    quote: "\"The major problems in the world are the result of the difference between how nature works and the way people think.\"" },
+  { id: "beer", label: "stafford beer", group: "linhagem", subtitle: "cybersyn · visualização de complexidade em tempo real", weight: 6, status: "evidência",
+    theory: "Materialização política da cibernética. Cybersyn (Chile, 1971-73): sistema cibernético com feedback loops, modelagem de variedade e interface visual. A Opsroom de Cybersyn é ancestral da interface da T4P — ambas traduzem complexidade sistêmica em representação visual navegável para amplificar capacidade de decisão.",
+    keyWorks: ["Brain of the Firm (1972)", "Designing Freedom (1974)", "Cybersyn / Project Synco"] },
+  { id: "bret-victor", label: "bret victor", group: "linhagem", subtitle: "representação humana do pensamento", weight: 6, status: "evidência",
+    theory: "'The Humane Representation of Thought' é quase manifesto para a T4P. Feedback imediato, manipulação direta, representação visual como meio de pensamento — não como decoração. Contemporâneo mais próximo: trabalha exatamente no mesmo problema por outra via.",
+    keyWorks: ["Inventing on Principle (2012)", "The Humane Representation of Thought (2014)", "Dynamicland"] },
+  { id: "kapur", label: "arnav kapur", group: "linhagem", subtitle: "alterego · loop neural-máquina", weight: 5, status: "hipótese",
+    theory: "Interfaces que leem sinais subvocalizados e respondem em tempo real. Loop recursivo entre cognição interna e processamento externo. Kapur e T4P são duas implementações do mesmo princípio (amplificação por loop recursivo humano-máquina): uma neural, outra perceptivo-visual.",
+    keyWorks: ["AlterEgo (MIT Media Lab)", "Fluid Interfaces Group"] },
+
+  // ── CONCEITOS — pontes entre tradições ──
+  { id: "recursividade", label: "recursividade", group: "conceitos", subtitle: "motor central — saída reintegrada como condição de entrada", weight: 10, status: "tese",
+    theory: "A recursividade não é apenas retroalimentação — é o processo pelo qual a saída se reintegra como condição de entrada, reconfigurando o campo a cada ciclo. Na T4P, é literal: o campo modula partículas que escrevem no campo. Na pesquisa, é estrutural: o framework de análise se reconfigura a cada passagem.",
+    keyWorks: ["Hofstadter — GEB", "Von Foerster — Cibernética 2ª ordem", "Morin — O Método"],
+    quote: "\"Meu método consiste em aprender a navegar num oceano de incertezas entre arquipélagos de certezas.\" — Morin" },
+  { id: "sistemas-complexos", label: "sistemas complexos", group: "conceitos", subtitle: "emergência · auto-organização · feedback", weight: 9, status: "evidência",
+    theory: "Sistemas onde o comportamento global emerge das interações locais sem controle centralizado. Auto-organização, criticalidade, atratores estranhos e transições de fase. O substrato conceitual que torna a tese possível: sem complexidade, não há emergência; sem emergência, não há 'inacessível'.",
+    keyWorks: ["Meadows — Thinking in Systems", "Kauffman — At Home in the Universe"] },
+  { id: "percepcao", label: "percepção", group: "conceitos", subtitle: "loop preditivo · percepção ativa · extensível por ferramentas", weight: 10, status: "tese",
+    theory: "O cérebro não recebe passivamente — prevê e corrige. A percepção é um loop recursivo entre predição top-down e erro bottom-up. Ferramentas alteram percepção: quem tem microscópio vê micróbios, quem tem os índices de complexidade da T4P vê dinâmicas de Morin. Gibson (affordances): o ambiente oferece possibilidades de ação percebidas diretamente — a T4P afforda percepção de complexidade que não existia antes. Da percepção à percepção estendida: o eixo da contribuição original.",
+    keyWorks: ["Andy Clark — Surfing Uncertainty", "Merleau-Ponty — Fenomenologia da Percepção", "Gibson — The Ecological Approach to Visual Perception (1979)"],
+    quote: "\"As ferramentas são lentes.\" — T4P Proposta v1" },
+  { id: "linguagem", label: "linguagem emergente", group: "conceitos", subtitle: "significado como produto de interação, não imposição", weight: 6, status: "hipótese",
+    theory: "Na T4P, glifos nascem das interações entre partículas — a linguagem emerge em vez de ser imposta. Operacionaliza Barthes: a linguagem não apenas descreve, constitui o real. Conexão periférica ao argumento central, mas demonstra que emergência opera em múltiplas camadas.",
+    keyWorks: ["Barthes — Aula Inaugural", "Wittgenstein — Investigações Filosóficas"] },
+  { id: "dispositivo-epistemico", label: "dispositivo epistêmico", group: "conceitos", subtitle: "ferramenta que altera a forma de conhecer", weight: 9, status: "tese",
+    theory: "A T4P é um dispositivo epistemológico operacional: ferramentas para perceber e estudar de forma heurística sistemas dinâmicos e complexos. A ferramenta não ilustra a teoria — FORÇA a teoria a operar (Pickering: 'mangle of practice' — a ciência como dança de agência entre humano e material, onde resistências emergem e reconfiguram ambos os lados). Não simulador, não visualizador — objeto técnico que se individua enquanto opera (Simondon: individuação técnica). De Foucault (dispositif) a Engelbart (augmentation) a Simondon (objeto técnico): a ferramenta como método.",
+    keyWorks: ["Engelbart — Augmenting Human Intellect", "T4P Proposta v1", "Foucault — dispositif", "Simondon — Du mode d'existence des objets techniques (1958)", "Pickering — The Mangle of Practice (1995)"],
+    quote: "\"É um dispositivo epistemológico operacional.\" — T4P" },
+  { id: "modelo-conceitual", label: "campo→agentes↔interações→reconf.", group: "conceitos", subtitle: "modelo compartilhado T4P / mindhive / pesquisa", weight: 9, status: "evidência",
+    theory: "Campo (acúmulo distribuído) → Agentes (entidades locais) ↔ Interações (forças relacionais) → Reconfiguração (mudança estrutural) → retorno ao Campo. Idêntico ao motor do Mindhive e à lógica recursiva base da pesquisa. O modelo é em si instância da tese: opera recursivamente enquanto analisa recursividade.",
+    keyWorks: ["T4P Proposta v1", "CLAUDE.md"] },
+  { id: "intelligence-amplification", label: "amplificação de inteligência (IA)", group: "conceitos", subtitle: "IA vs AI · amplificar percepção humana, não substituí-la", weight: 8, status: "tese",
+    theory: "Desde os anos 60, duas tradições competem: AI (substituir cognição humana por artificial) e IA (amplificar cognição humana com ferramentas). Engelbart, Ashby, Licklider, Clark, Kapur = linhagem IA. A T4P usa técnicas computacionais de Vida Artificial (ALife) a serviço da amplificação perceptiva humana — não da substituição. Precisão terminológica (Lastro): ALife ≠ AI em sentido estrito; o claim é que técnicas computacionais podem servir amplificação, não que 'AI serve IA' genericamente.",
+    keyWorks: ["Engelbart (1962)", "Ashby (1956)", "Licklider (1960)", "Langton — Artificial Life"] },
+  { id: "variedade-requisita", label: "variedade requisita", group: "conceitos", subtitle: "lei de ashby — 'only variety can absorb variety'", weight: 9, status: "evidência",
+    theory: "A lei é teorema para sistemas de controle (Ashby 1958). Aplicação à percepção é analógica, não literal: a T4P aumenta a variedade perceptiva do instrumento para melhor absorver a variedade do objeto observado — princípio análogo à lei. Cautela do Lastro: 'T4P satisfaz variedade requisita' é hipótese até formalizar a ponte controle→percepção. O que se sustenta sem ressalva: ferramentas lineares têm variedade insuficiente (isso é o teorema). O que precisa de argumento: que a T4P tem variedade suficiente (isso é claim empírica).",
+    keyWorks: ["Ashby — Requisite Variety (1958)", "Ashby — An Introduction to Cybernetics (1956)"] },
+  { id: "research-through-design", label: "research-through-design", group: "conceitos", subtitle: "o artefato como argumento · posição metodológica", weight: 8, status: "evidência",
+    theory: "Frayling (1993) distinguiu: research INTO design (estudar design), research FOR design (gerar conhecimento para projetar), research THROUGH design (o artefato é o veículo de investigação). A T4P é research through artifact: o artefato não ilustra a tese — é o veículo pelo qual a tese é investigada, testada e demonstrada. Posição metodológica fundamental para o paper Open Science: legitima o artefato como forma de conhecimento, não como ilustração de teoria. Gaver (2012) e Zimmerman et al. (2007) avançaram os critérios de rigor.",
+    keyWorks: ["Frayling — Research in Art and Design (1993)", "Gaver — What Should We Expect from Research Through Design? (2012)", "Zimmerman, Forlizzi & Evenson — Research Through Design as a Method (2007)"],
+    quote: "\"The artefact IS the argument.\"" },
+  { id: "cognition-4e", label: "cognição 4E", group: "conceitos", subtitle: "embodied · embedded · enacted · extended", weight: 9, status: "evidência",
+    theory: "Família de abordagens da ciência cognitiva contemporânea (não teoria unificada — há tensões internas, especialmente entre enativismo radical e mente estendida). Usar versão de Gallagher (2017), a mais inclusiva. Embodied (corpo inseparável do pensamento), Embedded (imerso no ambiente), Enacted (emerge da ação, não da representação), Extended (distribuída entre cérebro, corpo e ferramentas). A T4P opera nos 4 E's simultaneamente — e habita a tensão entre eles em vez de resolvê-la: o conhecimento emerge da interação (enacted) E é estendido pela ferramenta (extended). Evan Thompson (co-autor de The Embodied Mind com Varela) é a ponte entre enativismo e 4E.",
+    keyWorks: ["Varela, Thompson & Rosch — The Embodied Mind (1991)", "Gallagher — Enactivist Interventions (2017)", "Newen, de Bruin & Gallagher — The Oxford Handbook of 4E Cognition (2018)", "Hutto & Myin — Radicalizing Enactivism (2013)"] },
+  { id: "gibson", label: "james gibson", group: "fundamentos", subtitle: "affordances · percepção ecológica direta", weight: 5, status: "evidência",
+    theory: "Teoria ecológica da percepção: o ambiente oferece affordances (possibilidades de ação) percebidas diretamente, sem representação interna. A T4P afforda percepção de complexidade que não existia antes. Tensão produtiva com Clark (Lastro): Gibson defende percepção direta (sem representação), Clark defende processamento preditivo (percepção como inferência). São incompatíveis como teorias da percepção — mas affordances como conceito operacional funciona independente da teoria completa. O paper usa affordances sem comprar percepção direta.",
+    keyWorks: ["The Ecological Approach to Visual Perception (1979)", "The Senses Considered as Perceptual Systems (1966)"],
+    quote: "\"We perceive not properties of things, but affordances of things.\"" },
+  { id: "hutchins", label: "edwin hutchins", group: "linhagem", subtitle: "cognição distribuída · cognition in the wild", weight: 7, status: "evidência",
+    theory: "Cognição distribuída: o sistema cognitivo não está na cabeça do indivíduo — está distribuído entre pessoas, ferramentas e artefatos. Em Cognition in the Wild (1995), nenhum navegador individual tem o conhecimento completo, mas o sistema navio-instrumentos-equipe navega. Isso é a tese da T4P dita em linguagem de ciência cognitiva empírica: o pesquisador + T4P como sistema cognitivo distribuído que percebe o que nenhum dos dois percebe sozinho. Fortalece a Percepção Estendida com base empírica (não só filosófica).",
+    keyWorks: ["Cognition in the Wild (1995)", "Distributed Cognition and the Will to Live (2000)"],
+    quote: "\"The cognitive properties of groups are produced by interaction between structures internal to individuals and structures external to individuals.\"" },
+];
+
+const EDGES = [
+  // ── ESPINHA DORSAL DO ARGUMENTO ──
+  { s: "monopolio-linearidade", t: "tese", label: "problema → resposta", str: 3 },
+  { s: "monopolio-linearidade", t: "variedade-requisita", label: "formalizado por Ashby", str: 3 },
+  { s: "monopolio-linearidade", t: "dispositivo-epistemico", label: "exige novo instrumento", str: 3 },
+  { s: "tese", t: "recursividade", label: "auto-observação produz", str: 3 },
+  { s: "tese", t: "dispositivo-epistemico", label: "método = objeto", str: 3 },
+  { s: "tese", t: "loop-recursivo", label: "demonstrada em código", str: 3 },
+  { s: "fissura", t: "tese", label: "o que falta definir", str: 3 },
+  { s: "fissura", t: "indices-complexidade", label: "candidato empírico", str: 3 },
+  { s: "fissura", t: "variedade-requisita", label: "candidato formal", str: 3 },
+  { s: "extended-perception", t: "tese", label: "contribuição original", str: 3 },
+  { s: "extended-perception", t: "percepcao", label: "percepção estendida", str: 3 },
+  { s: "extended-perception", t: "indices-complexidade", label: "caso demonstrativo", str: 3 },
+  { s: "extended-perception", t: "andy-clark", label: "extensão filosófica", str: 3 },
+
+  // ── OPERAÇÕES ↔ FUNDAMENTOS ──
+  { s: "indices-complexidade", t: "morin", label: "3 operadores em tempo real", str: 3 },
+  { s: "indices-complexidade", t: "meadows", label: "loops computados", str: 2 },
+  { s: "indices-complexidade", t: "variedade-requisita", label: "5 índices = variedade", str: 3 },
+  { s: "indices-complexidade", t: "percepcao", label: "percepção ampliada", str: 3 },
+  { s: "loop-recursivo", t: "recursividade", label: "tese em código", str: 3 },
+  { s: "loop-recursivo", t: "von-foerster", label: "observador = sistema", str: 3 },
+  { s: "loop-recursivo", t: "hofstadter", label: "strange loop operacional", str: 2 },
+  { s: "motor-alife", t: "sistemas-complexos", label: "emergência artificial", str: 3 },
+  { s: "motor-alife", t: "maturana-varela", label: "autopoiese computacional", str: 3 },
+  { s: "motor-alife", t: "dispositivo-epistemico", label: "substrato do dispositivo", str: 2 },
+  { s: "musica-emergente", t: "percepcao", label: "percepção sensorial", str: 2 },
+  { s: "musica-emergente", t: "linguagem", label: "som como linguagem", str: 2 },
+  { s: "dinamicas-territoriais", t: "deleuze", label: "tradução operacional", str: 3 },
+  { s: "dinamicas-territoriais", t: "sistemas-complexos", label: "formação/dissolução", str: 2 },
+
+  // ── FUNDAMENTOS — conexões internas ──
+  { s: "morin", t: "recursividade", label: "recursivo organizacional", str: 3 },
+  { s: "morin", t: "sistemas-complexos", label: "pensamento complexo", str: 3 },
+  { s: "morin", t: "dispositivo-epistemico", label: "7 saberes → T4P", str: 3 },
+  { s: "deleuze", t: "sistemas-complexos", label: "multiplicidade", str: 2 },
+  { s: "deleuze", t: "linguagem", label: "a-significância", str: 1 },
+  { s: "maturana-varela", t: "sistemas-complexos", label: "autopoiese", str: 3 },
+  { s: "maturana-varela", t: "recursividade", label: "conhecer = viver", str: 2 },
+  { s: "von-foerster", t: "recursividade", label: "observador no sistema", str: 3 },
+  { s: "hofstadter", t: "recursividade", label: "strange loops", str: 3 },
+  { s: "meadows", t: "sistemas-complexos", label: "alavancagem", str: 2 },
+  { s: "jung", t: "percepcao", label: "imaginação ativa", str: 1 },
+  { s: "barthes", t: "linguagem", label: "fascismo linguístico", str: 2 },
+  { s: "luhmann", t: "maturana-varela", label: "extensão social", str: 1 },
+
+  // ── LINHAGEM IA ──
+  { s: "engelbart", t: "intelligence-amplification", label: "fundador", str: 3 },
+  { s: "engelbart", t: "dispositivo-epistemico", label: "augmentation → dispositivo", str: 3 },
+  { s: "engelbart", t: "licklider", label: "simbiose + augmentation", str: 2 },
+  { s: "ashby", t: "variedade-requisita", label: "formulação formal", str: 3 },
+  { s: "ashby", t: "sistemas-complexos", label: "cibernética fundacional", str: 3 },
+  { s: "ashby", t: "von-foerster", label: "mentor → 2ª ordem", str: 2 },
+  { s: "ashby", t: "beer", label: "mentor → materialização", str: 2 },
+  { s: "ashby", t: "monopolio-linearidade", label: "formaliza como teorema", str: 3 },
+  { s: "licklider", t: "intelligence-amplification", label: "simbiose humano-máquina", str: 2 },
+  { s: "licklider", t: "maturana-varela", label: "simbiose ≈ acoplamento", str: 2 },
+  { s: "andy-clark", t: "percepcao", label: "mente estendida", str: 3 },
+  { s: "andy-clark", t: "maturana-varela", label: "embodied cognition", str: 2 },
+  { s: "andy-clark", t: "dispositivo-epistemico", label: "ferramenta = órgão", str: 3 },
+  { s: "kapur", t: "intelligence-amplification", label: "loop neural-máquina", str: 2 },
+  { s: "kapur", t: "loop-recursivo", label: "loop análogo", str: 2 },
+  { s: "bateson", t: "sistemas-complexos", label: "ecologia da mente", str: 2 },
+  { s: "bateson", t: "maturana-varela", label: "mente como sistema", str: 2 },
+  { s: "bateson", t: "von-foerster", label: "cibernética epistêmica", str: 2 },
+  { s: "bateson", t: "recursividade", label: "informação recursiva", str: 2 },
+  { s: "beer", t: "dispositivo-epistemico", label: "Cybersyn como dispositivo", str: 2 },
+  { s: "bret-victor", t: "dispositivo-epistemico", label: "representação humana", str: 3 },
+  { s: "bret-victor", t: "percepcao", label: "feedback imediato", str: 2 },
+  { s: "bret-victor", t: "engelbart", label: "herdeiro contemporâneo", str: 2 },
+  { s: "intelligence-amplification", t: "dispositivo-epistemico", label: "posição epistêmica", str: 3 },
+  { s: "intelligence-amplification", t: "tese", label: "amplificar ≠ substituir", str: 2 },
+
+  // ── CONCEITOS — conexões transversais ──
+  { s: "recursividade", t: "sistemas-complexos", label: "loops", str: 3 },
+  { s: "recursividade", t: "percepcao", label: "loop perceptual", str: 2 },
+  { s: "sistemas-complexos", t: "percepcao", label: "emergência perceptível", str: 2 },
+  { s: "dispositivo-epistemico", t: "percepcao", label: "altera percepção", str: 3 },
+  { s: "modelo-conceitual", t: "recursividade", label: "ciclo base", str: 3 },
+  { s: "modelo-conceitual", t: "tese", label: "instância da tese", str: 2 },
+  { s: "variedade-requisita", t: "fissura", label: "formaliza 'inacessível'", str: 3 },
+
+  // ── Gibson, RtD, 4E, Hutchins ──
+  { s: "gibson", t: "percepcao", label: "affordances", str: 3 },
+  { s: "gibson", t: "cognition-4e", label: "percepção ecológica", str: 2 },
+  { s: "gibson", t: "motor-alife", label: "ambiente afforda", str: 1 },
+  { s: "research-through-design", t: "dispositivo-epistemico", label: "artefato = argumento", str: 3 },
+  { s: "research-through-design", t: "tese", label: "posição metodológica", str: 3 },
+  { s: "research-through-design", t: "loop-recursivo", label: "investigar através de", str: 2 },
+  { s: "research-through-design", t: "intelligence-amplification", label: "tradição compartilhada", str: 1 },
+  { s: "cognition-4e", t: "percepcao", label: "4 dimensões da percepção", str: 3 },
+  { s: "cognition-4e", t: "andy-clark", label: "Extended = 1 dos 4 E's", str: 3 },
+  { s: "cognition-4e", t: "maturana-varela", label: "Enacted = autopoiese", str: 3 },
+  { s: "cognition-4e", t: "extended-perception", label: "framework unificador", str: 3 },
+  { s: "cognition-4e", t: "tese", label: "T4P opera nos 4 E's", str: 2 },
+  { s: "cognition-4e", t: "von-foerster", label: "Embedded = observador dentro", str: 2 },
+  { s: "hutchins", t: "extended-perception", label: "base empírica", str: 3 },
+  { s: "hutchins", t: "cognition-4e", label: "cognição distribuída", str: 2 },
+  { s: "hutchins", t: "engelbart", label: "IA → distribuída", str: 2 },
+  { s: "hutchins", t: "dispositivo-epistemico", label: "sistema humano+ferramenta", str: 2 },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DESIGN SYSTEM — Teenage Engineering inspired: white, minimal, monospace
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const GC = { eixo: "#b03636", operacoes: "#1a7a7a", fundamentos: "#6b4d94", linhagem: "#9a7209", conceitos: "#2d7a5a", custom: "#777", discovered: "#1a7a7a" };
+const GL = { eixo: "eixo", operacoes: "operações", fundamentos: "fundamentos", linhagem: "linhagem ia", conceitos: "conceitos", custom: "manual", discovered: "descoberto" };
+const SB = { tese: { c: "#b03636", l: "tese" }, "hipótese": { c: "#6b4d94", l: "hipótese" }, "evidência": { c: "#2d7a5a", l: "evidência" } };
+const MC = { decisão: "#9a7209", hipótese: "#6b4d94", evidência: "#2d7a5a", calibração: "#b03636", direção: "#1a7a7a", tensão: "#c47a20", método: "#8a5ab5", descoberta: "#1a7a7a" };
+
+const AGENTS = [
+  { id: "operador", emoji: "○", label: "operador" }, { id: "rizoma", emoji: "◇", label: "rizoma" },
+  { id: "engrenagem", emoji: "□", label: "engrenagem" }, { id: "lastro", emoji: "△", label: "lastro" },
+  { id: "mao", emoji: "◁", label: "mão" }, { id: "forja", emoji: "▽", label: "forja" },
+];
+
+const MEMORIES = [
+  { id: "m1", type: "decisão", label: "T4P é o artefato-tese", content: "A T4P substitui o Mindhive como caso central da pesquisa.", date: "2026-03-21", by: "operador", conns: ["tese", "loop-recursivo"] },
+  { id: "m2", type: "decisão", label: "Frame revisado", content: "De 'investigar recursividade' para 'forçar teoria a operar e ver o que emerge'.", date: "2026-03-21", by: "forja", conns: ["tese", "dispositivo-epistemico"] },
+  { id: "m3", type: "hipótese", label: "Fissura: índices de complexidade", content: "Índices hologramático/dialógica só existem dentro do loop. Se inacessível = só observável no loop → T4P demonstra.", date: "2026-03-21", by: "lastro", conns: ["fissura", "indices-complexidade"] },
+  { id: "m4", type: "evidência", label: "Loop recursivo central", content: "Campo modula partículas que escrevem no campo. Literalmente a tese em código.", date: "2026-03-21", by: "engrenagem", conns: ["loop-recursivo", "tese"] },
+  { id: "m5", type: "calibração", label: "Traduzir ≠ implementar", content: "Dizer 'traduz operacionalmente' não 'implementa'. Deleuze rejeitaria a redução.", date: "2026-03-21", by: "lastro", conns: ["deleuze", "dinamicas-territoriais"] },
+  { id: "m6", type: "método", label: "Lógica Recursiva Base", content: "Campo → Agentes → Interações → Reconfiguração ↺", date: "2026-03-21", by: "operador", conns: ["recursividade", "modelo-conceitual"] },
+  { id: "m7", type: "tensão", label: "Amplitude × Foco", content: "T4P tem 27+ submódulos. Distinguir núcleo epistêmico de periferia exploratória.", date: "2026-03-21", by: "lastro", conns: ["dispositivo-epistemico", "sistemas-complexos"] },
+  { id: "m8", type: "direção", label: "Ensaio fundacional", content: "Próximo passo: 3-5k palavras, T4P como caso central.", date: "2026-03-21", by: "operador", conns: ["tese", "dispositivo-epistemico"] },
+  { id: "m9", type: "evidência", label: "Monopólio da linearidade", content: "Proposta v1 identifica: monopólio da linearidade como regime epistemológico é o problema.", date: "2026-03-22", by: "forja", conns: ["monopolio-linearidade", "dispositivo-epistemico"] },
+  { id: "m10", type: "decisão", label: "7 Saberes absorvidos em Morin", content: "Os 7 saberes são fundamento declarado da T4P. Absorvidos no nó Morin — não justificam nó separado.", date: "2026-03-22", by: "rizoma", conns: ["morin", "indices-complexidade"] },
+  { id: "m11", type: "descoberta", label: "Engelbart como avô da T4P", content: "Engelbart (Augmenting Human Intellect, 1962) é o avô técnico da T4P. Mesma lógica de augmentation, deslocada do produtivo-industrial para o epistêmico-perceptivo.", date: "2026-03-22", by: "rizoma", conns: ["engelbart", "dispositivo-epistemico"] },
+  { id: "m12", type: "evidência", label: "Ashby formaliza o monopólio", content: "Lei da Variedade Requisita (Ashby 1958) formaliza o 'monopólio da linearidade': ferramentas lineares não podem absorver variedade não-linear. Não é opinião — é teorema cibernético.", date: "2026-03-22", by: "lastro", conns: ["ashby", "variedade-requisita", "monopolio-linearidade"] },
+  { id: "m13", type: "hipótese", label: "Percepção Estendida", content: "Se Clark tem Extended Mind, a pesquisa pode propor Extended Perception — percepção estendida por ferramentas. A T4P é o caso demonstrativo. Potencialmente contribuição original publicável.", date: "2026-03-22", by: "rizoma", conns: ["andy-clark", "extended-perception", "indices-complexidade"] },
+  { id: "m14", type: "direção", label: "Tradição IA vs AI no ensaio", content: "Posicionar a T4P na tradição Intelligence Amplification (Engelbart→Ashby→Licklider→Clark→Kapur). Diferencial forte num momento de hype AI.", date: "2026-03-22", by: "forja", conns: ["intelligence-amplification", "tese"] },
+  { id: "m15", type: "tensão", label: "Variedade × Legibilidade", content: "Se a ferramenta precisa de tanta variedade quanto o objeto (Ashby), como o humano a lê? Os índices de complexidade traduzem em dimensões legíveis sem eliminar — mas a tradução é sempre parcial.", date: "2026-03-22", by: "lastro", conns: ["variedade-requisita", "indices-complexidade"] },
+  { id: "m16", type: "tensão", label: "Extensão × Dependência cognitiva", content: "Se T4P é percepção estendida (Clark), o que acontece quando removida? Clark diz dependência é natural (somos dependentes de linguagem). A pesquisa precisa tomar posição.", date: "2026-03-22", by: "lastro", conns: ["andy-clark", "extended-perception"] },
+  { id: "m17", type: "decisão", label: "Reconfiguração do rizoma", content: "Modo Recursivo reorganizou o rizoma inteiro. Novos grupos: Eixo (espinha do argumento), Operações (o que a T4P faz), Fundamentos (fontes diretas), Linhagem IA (tradição), Conceitos (pontes). Taxonomia antiga substituída.", date: "2026-03-22", by: "operador", conns: ["tese", "modelo-conceitual"] },
+  { id: "m18", type: "decisão", label: "Terminologia assertiva", content: "Nomes técnicos de código substituídos: Complexity Lens + Or Chozer → 'Índices de Complexidade'. Particle Life → 'Motor ALife'. Campo Recursivo → 'Loop Recursivo Central'. Mil Platôs Engine → 'Dinâmicas Territoriais'. A pesquisa fala em operações epistêmicas, não em módulos TypeScript.", date: "2026-03-22", by: "forja", conns: ["indices-complexidade", "loop-recursivo"] },
+  { id: "m19", type: "decisão", label: "Fusões e podas", content: "Or Chozer absorvido nos Índices de Complexidade (mesmo mecanismo). Dispositivo Epistemológico + Ferramentas são Lentes → Dispositivo Epistêmico. 7 Saberes absorvido em Morin. Jung, Barthes, Luhmann rebaixados (periféricos ao argumento central).", date: "2026-03-22", by: "lastro", conns: ["indices-complexidade", "morin"] },
+  { id: "m20", type: "método", label: "4 funções de cada nó", content: "Cada nó do rizoma deve responder: qual sua função? Fundamentar (base teórica), Demonstrar (tese em operação), Posicionar (situar na tradição), ou Tensionar (manter honestidade). Nós sem função clara são candidatos a poda.", date: "2026-03-22", by: "operador", conns: ["tese", "fissura"] },
+  { id: "m21", type: "descoberta", label: "4E Cognition como framework unificador", content: "Rizoma identificou: Cognição 4E (Embodied, Embedded, Enacted, Extended) unifica Clark, Maturana/Varela e Von Foerster sob um framework da ciência cognitiva contemporânea. A T4P opera nos 4 E's simultaneamente. Obrigatório para o paper.", date: "2026-03-22", by: "rizoma", conns: ["cognition-4e", "extended-perception"] },
+  { id: "m22", type: "descoberta", label: "Hutchins — base empírica para Percepção Estendida", content: "Edwin Hutchins (Cognition in the Wild, 1995) dá base empírica à Percepção Estendida: cognição distribuída entre humanos e ferramentas. O sistema pesquisador+T4P é análogo ao sistema navegador+instrumentos.", date: "2026-03-22", by: "rizoma", conns: ["hutchins", "extended-perception"] },
+  { id: "m23", type: "direção", label: "Referências para o paper (priorizadas)", content: "Prioridade 1 (nós no rizoma): 4E Cognition, Hutchins, Gibson, Research-through-Design. Prioridade 2 (ref. em nós existentes): Simondon e Pickering em Dispositivo Epistêmico, Thompson em 4E. Prioridade 3 (notas): Latour (controverso, evitar nó separado).", date: "2026-03-22", by: "operador", conns: ["cognition-4e", "hutchins"] },
+  { id: "m24", type: "calibração", label: "Ashby: aplicação analógica", content: "Lastro: Lei da Variedade Requisita é teorema para sistemas de CONTROLE. Aplicação à percepção é extensão analógica que o paper precisa argumentar.", date: "2026-03-22", by: "lastro", conns: ["ashby", "variedade-requisita"] },
+  { id: "m25", type: "calibração", label: "4E: família, não teoria", content: "Lastro: 4E Cognition não é teoria unificada — é família de abordagens com tensões internas. Usar versão de Gallagher (mais inclusiva). A T4P habita a tensão entre enativismo e extensão.", date: "2026-03-22", by: "lastro", conns: ["cognition-4e", "extended-perception"] },
+  { id: "m26", type: "calibração", label: "Gibson × Clark: tensão produtiva", content: "Lastro: Gibson (percepção direta) e Clark (processamento preditivo) são incompatíveis como teorias. O paper usa affordances como conceito operacional sem comprar percepção direta.", date: "2026-03-22", by: "lastro", conns: ["gibson", "percepcao"] },
+  { id: "m27", type: "calibração", label: "ALife ≠ AI", content: "Lastro: Vida Artificial não é Inteligência Artificial em sentido estrito. O claim correto: 'técnicas computacionais de ALife servem à amplificação perceptiva humana'.", date: "2026-03-22", by: "lastro", conns: ["intelligence-amplification", "motor-alife"] },
+  { id: "m28", type: "evidência", label: "Parity Principle para Percepção Estendida", content: "Lastro confirmou: o argumento para Extended Perception via parity principle se sustenta. Se computar índices mentalmente contaria como percepção, a T4P fazendo externamente é percepção estendida.", date: "2026-03-22", by: "lastro", conns: ["extended-perception", "andy-clark"] },
+  { id: "m29", type: "decisão", label: "Research-through-Design como fundamento metodológico", content: "O paper precisa de posição metodológica explícita: research through artifact (Frayling 1993). O artefato não ilustra a tese — é o veículo de investigação.", date: "2026-03-22", by: "operador", conns: ["research-through-design", "tese"] },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// REDUCER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "ADD_NODE": {
+      if (state.nodes.find((n) => n.id === action.node.id)) return state;
+      return { ...state, nodes: [...state.nodes, action.node] };
+    }
+    case "ADD_EDGE": {
+      const dup = state.edges.find((e) => (e.s === action.edge.s && e.t === action.edge.t) || (e.s === action.edge.t && e.t === action.edge.s));
+      if (dup) return state;
+      return { ...state, edges: [...state.edges, action.edge] };
+    }
+    case "UPDATE_NODE":
+      return { ...state, nodes: state.nodes.map((n) => n.id === action.id ? { ...n, ...action.fields } : n) };
+    case "REMOVE_NODE":
+      return { ...state, nodes: state.nodes.filter((n) => n.id !== action.id), edges: state.edges.filter((e) => e.s !== action.id && e.t !== action.id) };
+    case "REMOVE_EDGE":
+      return { ...state, edges: state.edges.filter((_, i) => i !== action.index) };
+    case "LOAD": return action.state;
+    default: return state;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FONT STYLE — monospace system
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const MONO = "'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace";
+const SERIF = "Georgia, 'Times New Roman', 'Noto Serif', serif";
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PARTICLES — subtle monochrome flowing energy
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function Particles({ edges, pos, tf, nodes }) {
+  const ref = useRef(null);
+  const pts = useRef([]);
+  const raf = useRef(null);
+
+  useEffect(() => {
+    const c = ref.current; if (!c) return;
+    const ctx = c.getContext("2d");
+    const resize = () => { c.width = c.parentElement?.clientWidth || 800; c.height = c.parentElement?.clientHeight || 600; };
+    resize();
+
+    const draw = () => {
+      ctx.clearRect(0, 0, c.width, c.height);
+      ctx.save(); ctx.translate(tf.x, tf.y); ctx.scale(tf.k, tf.k);
+
+      if (pts.current.length < 60 && edges.length > 0) {
+        const e = edges[Math.floor(Math.random() * edges.length)];
+        const a = pos[e.s], b = pos[e.t];
+        if (a && b) {
+          pts.current.push({ ax: a.x, ay: a.y, bx: b.x, by: b.y, p: 0, sp: 0.002 + Math.random() * 0.005, life: 1, str: e.str || 1 });
+        }
+      }
+
+      pts.current = pts.current.filter((p) => p.life > 0);
+      pts.current.forEach((p) => {
+        p.p += p.sp; if (p.p >= 1) { p.p = 0; p.life -= 0.12; }
+        const x = p.ax + (p.bx - p.ax) * p.p, y = p.ay + (p.by - p.ay) * p.p;
+        const a = Math.min(p.life, 0.5) * (0.15 + p.str * 0.08);
+        ctx.beginPath(); ctx.arc(x, y, 0.8 + p.str * 0.2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0,0,0,${a})`; ctx.fill();
+      });
+
+      ctx.restore();
+      raf.current = requestAnimationFrame(draw);
+    };
+    raf.current = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf.current);
+  }, [edges.length, pos, tf]);
+
+  return <canvas ref={ref} className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }} />;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NODE DETAIL PANEL — clean white sidebar
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function EditField({ label, value, onChange, multi, mono }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(value || "");
+  useEffect(() => setVal(value || ""), [value]);
+  const save = () => { onChange(val); setEditing(false); };
+  const cls = `w-full bg-gray-50 text-gray-700 rounded px-3 py-2 text-xs border border-gray-200 outline-none focus:border-gray-400 ${mono ? "" : ""}`;
+  if (editing) return (
+    <div className="mb-4">
+      {label && <h4 className="text-gray-400 text-[10px] uppercase tracking-widest mb-1.5" style={{ fontFamily: MONO }}>{label}</h4>}
+      {multi ? <textarea value={val} onChange={(e) => setVal(e.target.value)} className={`${cls} h-32 resize-none`} style={{ fontFamily: mono ? MONO : "inherit" }} /> :
+        <input value={val} onChange={(e) => setVal(e.target.value)} className={cls} style={{ fontFamily: mono ? MONO : "inherit" }} />}
+      <div className="flex gap-2 mt-1.5">
+        <button onClick={save} className="px-3 py-1 text-[10px] text-gray-600 border border-gray-300 rounded hover:bg-gray-50 uppercase tracking-wider" style={{ fontFamily: MONO }}>ok</button>
+        <button onClick={() => setEditing(false)} className="px-3 py-1 text-[10px] text-gray-400 border border-gray-200 rounded hover:bg-gray-50" style={{ fontFamily: MONO }}>cancelar</button>
+      </div>
+    </div>
+  );
+  return (
+    <div className="mb-4 group cursor-text" onClick={() => setEditing(true)}>
+      {label && <h4 className="text-gray-400 text-[10px] uppercase tracking-widest mb-1.5 flex items-center gap-1" style={{ fontFamily: MONO }}>{label} <span className="opacity-0 group-hover:opacity-40 text-[8px]">edit</span></h4>}
+      <div className={`text-gray-600 text-sm leading-relaxed hover:bg-gray-50 rounded p-1.5 -m-1.5 transition-colors ${mono ? "text-xs" : ""}`} style={{ fontFamily: mono ? MONO : "inherit" }}>
+        {value || <span className="text-gray-300 italic text-xs">clique para editar...</span>}
+      </div>
+    </div>
+  );
+}
+
+function Detail({ node, edges, nodes, dispatch, onClose, onConnect, onRemove }) {
+  const col = GC[node.group] || "#666";
+  const badge = SB[node.status];
+  const conns = edges.filter((e) => e.s === node.id || e.t === node.id);
+  const upd = (fields) => dispatch({ type: "UPDATE_NODE", id: node.id, fields });
+  const groups = Object.keys(GC);
+  const statuses = Object.keys(SB);
+
+  return (
+    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto flex-none">
+      <div className="p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <select value={node.group} onChange={(e) => upd({ group: e.target.value })}
+              className="text-[10px] px-2 py-0.5 rounded bg-transparent border border-gray-200 outline-none cursor-pointer uppercase tracking-widest"
+              style={{ color: col, fontFamily: MONO }}>
+              {groups.map((g) => <option key={g} value={g} style={{ color: GC[g] }}>{GL[g] || g}</option>)}
+            </select>
+          </div>
+          <button onClick={onClose} className="text-gray-300 hover:text-gray-600 text-lg leading-none">&times;</button>
+        </div>
+
+        <EditField label="" value={node.label} onChange={(v) => upd({ label: v })} />
+        <EditField label="subtítulo" value={node.subtitle} onChange={(v) => upd({ subtitle: v })} />
+
+        <div className="mb-4 flex items-center gap-2">
+          <h4 className="text-gray-400 text-[10px] uppercase tracking-widest" style={{ fontFamily: MONO }}>status</h4>
+          <div className="flex gap-1">
+            {statuses.map((s) => (
+              <button key={s} onClick={() => upd({ status: s })}
+                className={`px-2 py-0.5 rounded text-[10px] tracking-wider transition-all ${node.status === s ? "opacity-100" : "opacity-30 hover:opacity-60"}`}
+                style={{ backgroundColor: `${SB[s].c}12`, color: SB[s].c, border: `1px solid ${SB[s].c}30`, fontFamily: MONO }}>{SB[s].l}</button>
+            ))}
+          </div>
+        </div>
+
+        <EditField label="teoria" value={node.theory} onChange={(v) => upd({ theory: v })} multi />
+        <EditField label="na T4P" value={node.t4p} onChange={(v) => upd({ t4p: v })} multi />
+        <EditField label="citação" value={node.quote} onChange={(v) => upd({ quote: v })} mono />
+        <EditField label="referências" value={(node.keyWorks || []).join("\n")} onChange={(v) => upd({ keyWorks: v.split("\n").filter(Boolean) })} multi mono />
+
+        <div className="mb-4">
+          <h4 className="text-gray-400 text-[10px] uppercase tracking-widest mb-1.5" style={{ fontFamily: MONO }}>peso</h4>
+          <div className="flex items-center gap-2">
+            <input type="range" min="1" max="10" value={node.weight || 5}
+              onChange={(e) => upd({ weight: parseInt(e.target.value) })}
+              className="flex-1 h-1 appearance-none bg-gray-100 rounded-full cursor-pointer"
+              style={{ accentColor: col }} />
+            <span className="text-[10px] text-gray-400 w-8 text-right" style={{ fontFamily: MONO }}>{node.weight || 5}/10</span>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <h4 className="text-gray-400 text-[10px] uppercase tracking-widest mb-2" style={{ fontFamily: MONO }}>conexões ({conns.length})</h4>
+          <div className="space-y-0.5">
+            {conns.map((e, i) => {
+              const oid = e.s === node.id ? e.t : e.s;
+              const o = nodes.find((n) => n.id === oid);
+              const eIdx = edges.indexOf(e);
+              return o ? (
+                <div key={i} className="flex items-center gap-2 text-xs p-1.5 rounded hover:bg-gray-50 group">
+                  <span className="w-1.5 h-1.5 rounded-full flex-none" style={{ backgroundColor: GC[o.group] || "#666" }} />
+                  <span className="text-gray-600 flex-1 truncate text-[11px]">{o.label}</span>
+                  {e.label && <span className="text-gray-300 text-[9px] truncate max-w-20" style={{ fontFamily: MONO }}>{e.label}</span>}
+                  <button onClick={() => dispatch({ type: "REMOVE_EDGE", index: eIdx })}
+                    className="opacity-0 group-hover:opacity-40 hover:opacity-100 text-red-400 text-[9px]">&times;</button>
+                </div>
+              ) : null;
+            })}
+          </div>
+        </div>
+
+        <div className="space-y-2 pt-3 border-t border-gray-100">
+          <button onClick={() => onConnect(node.id)}
+            className="w-full py-1.5 text-[10px] text-gray-500 rounded border border-gray-200 hover:bg-gray-50 uppercase tracking-widest transition-colors" style={{ fontFamily: MONO }}>conectar</button>
+          <button onClick={() => onRemove(node.id)}
+            className="w-full py-1.5 text-[10px] text-gray-400 rounded border border-gray-100 hover:border-red-200 hover:text-red-400 uppercase tracking-widest transition-colors" style={{ fontFamily: MONO }}>remover</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// RIZOMA TAB — white background, thin strokes, no glow
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function Rizoma({ state, dispatch }) {
+  const svgRef = useRef(null);
+  const simRef = useRef(null);
+  const [sel, setSel] = useState(null);
+  const [hov, setHov] = useState(null);
+  const [hovE, setHovE] = useState(null);
+  const [pos, setPos] = useState({});
+  const [adding, setAdding] = useState(null);
+  const [connecting, setConnecting] = useState(null);
+  const [filter, setFilter] = useState("all");
+  const [tf, setTf] = useState({ x: 0, y: 0, k: 1 });
+  const [tick, setTick] = useState(0);
+  const [emergences, setEmergences] = useState([]);
+  const [drag, setDrag] = useState(null);
+
+  useEffect(() => { const id = setInterval(() => setTick((t) => t + 1), 50); return () => clearInterval(id); }, []);
+
+  useEffect(() => {
+    if (simRef.current) simRef.current.stop();
+    const nodes = state.nodes.map((n) => ({ ...n, x: pos[n.id]?.x ?? 400 + (Math.random() - 0.5) * 400, y: pos[n.id]?.y ?? 300 + (Math.random() - 0.5) * 300 }));
+    const links = state.edges.map((e) => ({ source: e.s, target: e.t, str: e.str }));
+
+    const sim = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id((d) => d.id).distance((d) => 140 - (d.str || 1) * 12).strength((d) => 0.05 + (d.str || 1) * 0.03))
+      .force("charge", d3.forceManyBody().strength((d) => -70 - (d.weight || 5) * 12))
+      .force("center", d3.forceCenter(400, 300).strength(0.006))
+      .force("collision", d3.forceCollide((d) => 16 + (d.weight || 5) * 1.5))
+      .alphaDecay(0.006).velocityDecay(0.35).alphaMin(0.0005);
+
+    simRef.current = sim;
+    let frame;
+    const loop = () => {
+      const p = {}; sim.nodes().forEach((n) => { p[n.id] = { x: n.x, y: n.y }; }); setPos({ ...p });
+      const ns = sim.nodes();
+      const clusters = []; const visited = new Set();
+      ns.forEach((n) => {
+        if (visited.has(n.id)) return;
+        const cl = [n]; visited.add(n.id);
+        ns.forEach((m) => { if (m.id !== n.id && !visited.has(m.id) && Math.hypot(n.x - m.x, n.y - m.y) < 55) { cl.push(m); visited.add(m.id); } });
+        if (cl.length >= 3) clusters.push({ x: cl.reduce((s, c) => s + c.x, 0) / cl.length, y: cl.reduce((s, c) => s + c.y, 0) / cl.length, n: cl.length });
+      });
+      setEmergences(clusters);
+      if (sim.alpha() > 0.0005) frame = requestAnimationFrame(loop);
+    };
+    frame = requestAnimationFrame(loop);
+    return () => { sim.stop(); cancelAnimationFrame(frame); };
+  }, [state.nodes.length, state.edges.length]);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const svg = d3.select(svgRef.current);
+    const zoom = d3.zoom().scaleExtent([0.1, 5]).on("zoom", (e) => setTf({ x: e.transform.x, y: e.transform.y, k: e.transform.k }));
+    svg.call(zoom); return () => svg.on(".zoom", null);
+  }, []);
+
+  const startDrag = (e, nid) => { e.stopPropagation(); setDrag(nid); };
+  useEffect(() => {
+    if (!drag) return;
+    const move = (e) => {
+      const sim = simRef.current; if (!sim) return;
+      const node = sim.nodes().find((n) => n.id === drag);
+      if (node) { node.fx = (e.clientX - tf.x) / tf.k; node.fy = (e.clientY - tf.y - 40) / tf.k; sim.alpha(0.08).restart(); }
+    };
+    const up = () => {
+      const sim = simRef.current; if (sim) { const node = sim.nodes().find((n) => n.id === drag); if (node) { node.fx = null; node.fy = null; } }
+      setDrag(null);
+    };
+    window.addEventListener("mousemove", move); window.addEventListener("mouseup", up);
+    return () => { window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", up); };
+  }, [drag, tf]);
+
+  const filtered = filter === "all" ? state.nodes : state.nodes.filter((n) => n.group === filter);
+  const fIds = new Set(filtered.map((n) => n.id));
+  const visE = state.edges.filter((e) => fIds.has(e.s) && fIds.has(e.t));
+  const selNode = state.nodes.find((n) => n.id === sel);
+  const hovNode = state.nodes.find((n) => n.id === hov);
+  const cc = {}; state.edges.forEach((e) => { cc[e.s] = (cc[e.s] || 0) + 1; cc[e.t] = (cc[e.t] || 0) + 1; });
+  const groups = ["all", ...new Set(state.nodes.map((n) => n.group))];
+
+  return (
+    <div className="flex h-full">
+      <div className="flex-1 relative" style={{ backgroundColor: "#fafafa" }}>
+        <Particles edges={visE} pos={pos} tf={tf} nodes={state.nodes} />
+
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
+          <button onClick={() => setAdding({ label: "", note: "" })}
+            className="px-3 py-1.5 text-[10px] text-gray-500 border border-gray-300 rounded hover:bg-white uppercase tracking-widest transition-colors"
+            style={{ fontFamily: MONO }}>+ conceito</button>
+          {connecting && (
+            <span className="px-3 py-1.5 text-[10px] text-gray-600 border border-gray-400 rounded animate-pulse tracking-wider" style={{ fontFamily: MONO }}>
+              conectando: {state.nodes.find((n) => n.id === connecting)?.label}
+              <button onClick={() => setConnecting(null)} className="ml-2 text-gray-400">&times;</button>
+            </span>
+          )}
+        </div>
+
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-1 flex-wrap">
+          {groups.map((g) => (
+            <button key={g} onClick={() => setFilter(g)}
+              className={`px-2 py-1 text-[10px] rounded transition-all uppercase tracking-widest ${filter === g ? "text-gray-800 bg-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
+              style={{ fontFamily: MONO, border: filter === g ? `1px solid ${GC[g] || "#ccc"}` : "1px solid transparent" }}>
+              {g === "all" ? "todos" : GL[g] || g}
+            </button>
+          ))}
+        </div>
+
+        {adding && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.85)" }}>
+            <div className="bg-white border border-gray-200 rounded-lg p-6 w-80 shadow-lg">
+              <h3 className="text-gray-700 text-sm mb-4 uppercase tracking-widest" style={{ fontFamily: MONO }}>novo conceito</h3>
+              <input value={adding.label} onChange={(e) => setAdding({ ...adding, label: e.target.value })} placeholder="nome"
+                className="w-full bg-gray-50 text-gray-700 rounded px-3 py-2 text-sm mb-2 border border-gray-200 outline-none focus:border-gray-400" style={{ fontFamily: MONO }} />
+              <textarea value={adding.note} onChange={(e) => setAdding({ ...adding, note: e.target.value })} placeholder="conteúdo teórico..."
+                className="w-full bg-gray-50 text-gray-600 rounded px-3 py-2 text-sm mb-4 border border-gray-200 outline-none focus:border-gray-400 h-24 resize-none" />
+              <div className="flex gap-2">
+                <button onClick={() => { if (adding.label.trim()) { dispatch({ type: "ADD_NODE", node: { id: `c-${Date.now()}`, label: adding.label.toLowerCase(), group: "custom", theory: adding.note, subtitle: "", weight: 4, status: "hipótese" } }); setAdding(null); } }}
+                  className="flex-1 py-2 text-[10px] text-gray-600 border border-gray-300 rounded hover:bg-gray-50 uppercase tracking-widest" style={{ fontFamily: MONO }}>adicionar</button>
+                <button onClick={() => setAdding(null)}
+                  className="px-4 py-2 text-[10px] text-gray-400 border border-gray-200 rounded hover:bg-gray-50 uppercase tracking-widest" style={{ fontFamily: MONO }}>cancelar</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {hovNode && !sel && pos[hovNode.id] && (
+          <div className="absolute z-10 pointer-events-none px-3 py-2 bg-white border border-gray-200 rounded max-w-72 shadow-md"
+            style={{ left: Math.min(pos[hovNode.id].x * tf.k + tf.x + 20, 600), top: pos[hovNode.id].y * tf.k + tf.y - 10 }}>
+            <p className="text-gray-700 text-xs" style={{ fontFamily: MONO }}>{hovNode.label}</p>
+            {hovNode.subtitle && <p className="text-gray-400 text-[10px] mt-0.5">{hovNode.subtitle}</p>}
+            {hovNode.theory && <p className="text-gray-400 text-[10px] mt-1 leading-relaxed">{hovNode.theory.slice(0, 120)}...</p>}
+            <p className="text-gray-300 text-[10px] mt-1" style={{ fontFamily: MONO }}>{cc[hovNode.id] || 0} conexões · peso {hovNode.weight}/10</p>
+          </div>
+        )}
+
+        <svg ref={svgRef} width="100%" height="100%" className={drag ? "cursor-grabbing" : "cursor-grab"} style={{ position: "relative", zIndex: 2 }}>
+          <g transform={`translate(${tf.x},${tf.y}) scale(${tf.k})`}>
+            {emergences.map((em, i) => (
+              <g key={`em-${i}`}>
+                <circle cx={em.x} cy={em.y} r={18 + em.n * 7} fill="none" stroke="#999" strokeWidth={0.4}
+                  opacity={0.15 + Math.sin(tick * 0.03 + i) * 0.05} strokeDasharray="3 6" />
+                <text x={em.x} y={em.y - 18 - em.n * 7} textAnchor="middle" fill="#aaa" fontSize={6.5} opacity={0.35} fontFamily={MONO} style={{ letterSpacing: "0.08em" }}>emergência ({em.n})</text>
+              </g>
+            ))}
+
+            {visE.map((e, i) => {
+              const a = pos[e.s], b = pos[e.t]; if (!a || !b) return null;
+              const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, isH = hovE === i, str = e.str || 1;
+              return (
+                <g key={`e-${i}`} onMouseEnter={() => setHovE(i)} onMouseLeave={() => setHovE(null)}>
+                  <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={isH ? "#555" : "#ccc"} strokeWidth={isH ? 1.2 : 0.3 + str * 0.15} opacity={isH ? 0.6 : 0.2 + str * 0.05} />
+                  {isH && e.label && (
+                    <g>
+                      <rect x={mx - e.label.length * 2.2 - 4} y={my - 13} width={e.label.length * 4.4 + 8} height={13} rx={2} fill="white" fillOpacity={0.95} stroke="#ddd" strokeWidth={0.5} />
+                      <text x={mx} y={my - 4} textAnchor="middle" fill="#666" fontSize={7} fontFamily={MONO} style={{ letterSpacing: "0.03em" }}>{e.label}</text>
+                    </g>
+                  )}
+                </g>
+              );
+            })}
+
+            {filtered.map((n) => {
+              const p = pos[n.id]; if (!p) return null;
+              const isSel = sel === n.id, isH = hov === n.id;
+              const col = GC[n.group] || "#666";
+              const w = n.weight || 5, r = 5 + w * 1.1 + (cc[n.id] || 0) * 0.4;
+              const badge = SB[n.status];
+
+              return (
+                <g key={n.id} transform={`translate(${p.x},${p.y})`} style={{ cursor: drag === n.id ? "grabbing" : "pointer" }}
+                  onMouseEnter={() => !drag && setHov(n.id)} onMouseLeave={() => setHov(null)}
+                  onMouseDown={(e) => startDrag(e, n.id)}
+                  onClick={() => { if (drag) return; if (connecting && connecting !== n.id) { dispatch({ type: "ADD_EDGE", edge: { s: connecting, t: n.id, label: "", str: 1 } }); setConnecting(null); } else setSel(isSel ? null : n.id); }}>
+                  {isSel && <circle r={r + 4} fill="none" stroke={col} strokeWidth={0.8} opacity={0.4} strokeDasharray="2 3" />}
+                  {isH && !isSel && <circle r={r + 3} fill="none" stroke={col} strokeWidth={0.5} opacity={0.25} />}
+                  <circle r={r} fill={isH || isSel ? `${col}18` : `${col}0a`} stroke={col} strokeWidth={isSel ? 1.5 : isH ? 1 : 0.6} />
+                  {n.theory && n.theory.length > 30 && <circle r={1.5} fill={col} opacity={0.4} />}
+                  <text y={r + 10} textAnchor="middle" fill={isH || isSel ? "#333" : "#777"} fontSize={w >= 8 ? 8 : 7} fontFamily={MONO}
+                    style={{ pointerEvents: "none", letterSpacing: "0.04em" }}>{n.label}</text>
+                  {badge && w >= 7 && <text y={-r - 3} textAnchor="middle" fill={badge.c} fontSize={5.5} fontFamily={MONO} opacity={0.4}
+                    style={{ pointerEvents: "none", letterSpacing: "0.1em" }}>{badge.l}</text>}
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+
+        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-3 text-gray-400 text-[10px] tracking-wider" style={{ fontFamily: MONO }}>
+          <span>{state.nodes.length} conceitos</span><span>{state.edges.length} conexões</span>
+          {emergences.length > 0 && <span className="text-gray-500">{emergences.length} emergências</span>}
+        </div>
+      </div>
+
+      {selNode && <Detail node={selNode} edges={state.edges} nodes={state.nodes} dispatch={dispatch}
+        onClose={() => setSel(null)} onConnect={(id) => { setConnecting(id); setSel(null); }}
+        onRemove={(id) => { dispatch({ type: "REMOVE_NODE", id }); setSel(null); }} />}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MEMORY MAP — clean geometric nodes on white
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function Memory({ memories, nodes }) {
+  const [filter, setFilter] = useState("all");
+  const [sel, setSel] = useState(null);
+  const svgRef = useRef(null);
+  const [pos, setPos] = useState({});
+  const [tf, setTf] = useState({ x: 0, y: 0, k: 1 });
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => { const id = setInterval(() => setTick((t) => t + 1), 60); return () => clearInterval(id); }, []);
+
+  const filtered = filter === "all" ? memories : memories.filter((m) => m.type === filter);
+
+  useEffect(() => {
+    const mNodes = memories.map((m, i) => ({ id: m.id, x: 120 + (i % 5) * 130, y: 80 + Math.floor(i / 5) * 110 }));
+    const cIds = new Set(); memories.forEach((m) => m.conns?.forEach((c) => cIds.add(c)));
+    const cNodes = [...cIds].map((c) => ({ id: `r-${c}`, x: Math.random() * 600 + 80, y: Math.random() * 400 + 40 }));
+    const links = []; memories.forEach((m) => m.conns?.forEach((c) => { if (cIds.has(c)) links.push({ source: m.id, target: `r-${c}` }); }));
+
+    const sim = d3.forceSimulation([...mNodes, ...cNodes])
+      .force("link", d3.forceLink(links).id((d) => d.id).distance(75).strength(0.2))
+      .force("charge", d3.forceManyBody().strength(-120))
+      .force("center", d3.forceCenter(380, 250))
+      .force("collision", d3.forceCollide(26)).alphaDecay(0.02);
+
+    let frame;
+    const loop = () => { const p = {}; sim.nodes().forEach((n) => { p[n.id] = { x: n.x, y: n.y }; }); setPos({ ...p }); if (sim.alpha() > 0.002) frame = requestAnimationFrame(loop); };
+    frame = requestAnimationFrame(loop);
+    return () => { sim.stop(); cancelAnimationFrame(frame); };
+  }, [memories.length]);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const svg = d3.select(svgRef.current);
+    const zoom = d3.zoom().scaleExtent([0.3, 3]).on("zoom", (e) => setTf({ x: e.transform.x, y: e.transform.y, k: e.transform.k }));
+    svg.call(zoom); return () => svg.on(".zoom", null);
+  }, []);
+
+  const selMem = memories.find((m) => m.id === sel);
+  const types = ["all", ...new Set(memories.map((m) => m.type))];
+  const cIds = new Set(); memories.forEach((m) => m.conns?.forEach((c) => cIds.add(c)));
+
+  return (
+    <div className="flex h-full">
+      <div className="flex-1 relative" style={{ backgroundColor: "#fafafa" }}>
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1 flex-wrap">
+          {types.map((t) => (
+            <button key={t} onClick={() => setFilter(t)}
+              className={`px-2 py-1 text-[10px] rounded transition-all uppercase tracking-widest ${filter === t ? "text-gray-700 bg-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
+              style={{ fontFamily: MONO, border: filter === t ? `1px solid ${MC[t] || "#ccc"}` : "1px solid transparent" }}>
+              {t === "all" ? "todos" : t}
+            </button>
+          ))}
+        </div>
+
+        <svg ref={svgRef} width="100%" height="100%" className="cursor-grab">
+          <g transform={`translate(${tf.x},${tf.y}) scale(${tf.k})`}>
+            {memories.map((m) => (m.conns || []).map((c) => {
+              const a = pos[m.id], b = pos[`r-${c}`]; if (!a || !b) return null;
+              return <line key={`${m.id}-${c}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#ccc" strokeWidth={0.5} opacity={0.2 + Math.sin(tick * 0.03 + m.id.charCodeAt(1)) * 0.05} strokeDasharray="3 5" />;
+            }))}
+
+            {[...cIds].map((cId) => {
+              const p = pos[`r-${cId}`]; const concept = nodes.find((n) => n.id === cId); if (!p || !concept) return null;
+              return (
+                <g key={`r-${cId}`} transform={`translate(${p.x},${p.y})`}>
+                  <circle r={8} fill="none" stroke={GC[concept.group] || "#ccc"} strokeWidth={0.4} strokeDasharray="2 3" opacity={0.35} />
+                  <text y={15} textAnchor="middle" fill={GC[concept.group] || "#999"} fontSize={6.5} fontFamily={MONO} opacity={0.4} style={{ letterSpacing: "0.04em" }}>{concept.label}</text>
+                </g>
+              );
+            })}
+
+            {filtered.map((m) => {
+              const p = pos[m.id]; if (!p) return null;
+              const col = MC[m.type] || "#666"; const isSel = sel === m.id;
+              const agent = AGENTS.find((a) => a.id === m.by);
+              return (
+                <g key={m.id} transform={`translate(${p.x},${p.y})`} style={{ cursor: "pointer" }} onClick={() => setSel(isSel ? null : m.id)}>
+                  {isSel && <rect x={-28} y={-12} width={56} height={24} rx={2} fill="none" stroke={col} strokeWidth={1} opacity={0.4} />}
+                  <rect x={-24} y={-9} width={48} height={18} rx={2} fill="white" stroke={col} strokeWidth={isSel ? 1 : 0.5} />
+                  <text textAnchor="middle" dominantBaseline="central" fill={col} fontSize={6.5} fontFamily={MONO} style={{ pointerEvents: "none", letterSpacing: "0.08em" }}>{m.type.slice(0, 6)}</text>
+                  <text y={20} textAnchor="middle" fill="#888" fontSize={6.5} fontFamily={MONO} style={{ pointerEvents: "none", letterSpacing: "0.02em" }}>{m.label.length > 22 ? m.label.slice(0, 20) + "..." : m.label}</text>
+                  {agent && <text y={-15} textAnchor="middle" fontSize={9} fill={col} fontFamily={MONO} style={{ pointerEvents: "none" }}>{agent.emoji}</text>}
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+
+        <div className="absolute bottom-3 left-3 z-10 text-gray-400 text-[10px] tracking-wider" style={{ fontFamily: MONO }}>{memories.length} registros · {[...cIds].length} conceitos</div>
+      </div>
+
+      {selMem && (
+        <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto flex-none">
+          <div className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] px-2 py-0.5 rounded border uppercase tracking-widest"
+                style={{ borderColor: `${MC[selMem.type]}40`, color: MC[selMem.type], fontFamily: MONO }}>{selMem.type}</span>
+              <button onClick={() => setSel(null)} className="text-gray-300 hover:text-gray-600 leading-none">&times;</button>
+            </div>
+            <h3 className="text-gray-700 text-sm mb-3" style={{ fontFamily: MONO }}>{selMem.label}</h3>
+            <p className="text-gray-500 text-sm leading-relaxed mb-4">{selMem.content}</p>
+            <div className="flex items-center gap-2 text-[10px] text-gray-400 mb-4" style={{ fontFamily: MONO }}>
+              <span style={{ color: MC[selMem.type] }}>{AGENTS.find((a) => a.id === selMem.by)?.emoji}</span>
+              <span>{AGENTS.find((a) => a.id === selMem.by)?.label}</span>
+              <span className="text-gray-200">·</span>
+              <span>{selMem.date}</span>
+            </div>
+            {selMem.conns?.length > 0 && (
+              <div>
+                <h4 className="text-gray-400 text-[10px] uppercase tracking-widest mb-2" style={{ fontFamily: MONO }}>conceitos</h4>
+                {selMem.conns.map((c) => {
+                  const concept = nodes.find((n) => n.id === c);
+                  return (
+                    <div key={c} className="flex items-center gap-2 text-xs p-1.5 rounded hover:bg-gray-50">
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: GC[concept?.group] || "#ccc" }} />
+                      <span className="text-gray-500 text-[11px]">{concept?.label || c}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PAPER — structured editor, serif body, monospace chrome
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const PAPER_INIT = [
+  { id: "s0", num: "0", title: "Resumo", status: "rascunho",
+    nodes: ["tese", "extended-perception", "monopolio-linearidade"],
+    body: "", recursive: "",
+    guide: "~250 palavras. O problema (monopólio da linearidade), o instrumento (T4P), a tese (auto-observação produz inacessível), e a contribuição (Percepção Estendida). Incluir: posição metodológica (research-through-design) e posição epistêmica (Open Science)." },
+  { id: "s1", num: "1", title: "O Problema — Monopólio da Linearidade", status: "rascunho",
+    nodes: ["monopolio-linearidade", "variedade-requisita", "ashby", "sistemas-complexos"],
+    body: "", recursive: "",
+    guide: "Abrir com o fenômeno: ferramentas epistemológicas hegemônicas são lineares. Consequência: formas de conhecimento recursivas, emergentes, não-lineares ficam inacessíveis. Ashby formaliza: linearidade→sequencialidade→variedade reduzida→impossibilidade cibernética de absorver complexidade." },
+  { id: "s2", num: "2", title: "Linhagem — De Engelbart a 4E Cognition", status: "rascunho",
+    nodes: ["engelbart", "ashby", "licklider", "andy-clark", "hutchins", "bateson", "beer", "bret-victor", "intelligence-amplification", "cognition-4e"],
+    body: "", recursive: "",
+    guide: "A T4P não surge do nada — herdeira da tradição Intelligence Amplification. Engelbart → Ashby → Licklider → Clark → Hutchins → 4E. Posicionar contra AI: amplificar percepção, não substituir." },
+  { id: "s3", num: "3", title: "Posição Metodológica — Research-through-Design", status: "rascunho",
+    nodes: ["research-through-design", "dispositivo-epistemico", "tese"],
+    body: "", recursive: "",
+    guide: "Frayling (1993): research THROUGH design — o artefato é veículo de investigação, não ilustração. A T4P como research through artifact. Open Science como escolha epistêmica positiva." },
+  { id: "s4", num: "4", title: "O Instrumento — T4P como Dispositivo Epistêmico", status: "rascunho",
+    nodes: ["motor-alife", "indices-complexidade", "loop-recursivo", "musica-emergente", "dinamicas-territoriais", "morin", "maturana-varela", "deleuze", "gibson"],
+    body: "", recursive: "",
+    guide: "Descrever as 5 operações epistêmicas: Motor ALife, Índices de Complexidade, Loop Recursivo Central, Música Emergente, Dinâmicas Territoriais. Mostrar como operam nos 4 E's." },
+  { id: "s5", num: "5", title: "A Tese — O que emerge quando a teoria opera", status: "rascunho",
+    nodes: ["tese", "recursividade", "loop-recursivo", "indices-complexidade", "modelo-conceitual", "hofstadter", "von-foerster"],
+    body: "", recursive: "",
+    guide: "A tese candidata: sistemas que se observam enquanto operam produzem formas de conhecimento inacessíveis à análise linear. O Loop Recursivo Central como demonstração." },
+  { id: "s6", num: "6", title: "A Fissura — Definindo 'inacessível'", status: "rascunho",
+    nodes: ["fissura", "indices-complexidade", "variedade-requisita", "ashby"],
+    body: "", recursive: "",
+    guide: "Honestidade: 'inacessível à análise linear' precisa de definição operacional. Dois candidatos: empírico (índices emergem em tempo real) e formal (Ashby: déficit de variedade)." },
+  { id: "s7", num: "7", title: "Contribuição — Percepção Estendida", status: "rascunho",
+    nodes: ["extended-perception", "andy-clark", "hutchins", "cognition-4e", "percepcao", "gibson"],
+    body: "", recursive: "",
+    guide: "A contribuição original: Extended Perception Thesis. Argumento via parity principle. Hutchins fortalece: cognição distribuída. 4E unifica." },
+  { id: "s8", num: "8", title: "Observação Recursiva — O paper observa a si mesmo", status: "rascunho",
+    nodes: ["recursividade", "modelo-conceitual", "von-foerster", "tese"],
+    body: "", recursive: "",
+    guide: "Meta-seção: o paper pratica a tese. Mostrar como Campo→Agentes→Interações→Reconfiguração operou no próprio processo de escrita." },
+  { id: "s9", num: "9", title: "Questões Abertas — Tensões produtivas", status: "rascunho",
+    nodes: ["fissura", "variedade-requisita", "extended-perception", "cognition-4e"],
+    body: "", recursive: "",
+    guide: "Tensões ativas: Variedade × Legibilidade, Extensão × Dependência, Enativismo × Extensão, IA × AI, Analogia × Literalidade." },
+];
+
+const PS = { rascunho: { c: "#999", l: "rascunho" }, escrevendo: { c: "#9a7209", l: "escrevendo" }, revisao: { c: "#6b4d94", l: "revisão" }, pronto: { c: "#2d7a5a", l: "pronto" } };
+
+function Paper({ sections, onUpdate, nodes }) {
+  const [sel, setSel] = useState("s0");
+  const sec = sections.find((s) => s.id === sel) || sections[0];
+  const wc = (s) => (s.body || "").split(/\s+/).filter(Boolean).length;
+  const totalWc = sections.reduce((a, s) => a + wc(s), 0);
+  const statuses = Object.keys(PS);
+
+  return (
+    <div className="flex h-full">
+      {/* Outline sidebar */}
+      <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto flex-none">
+        <div className="p-4 border-b border-gray-100">
+          <h3 className="text-gray-600 text-[10px] uppercase tracking-widest mb-2" style={{ fontFamily: MONO }}>estrutura do paper</h3>
+          <div className="flex items-center gap-2 text-[10px] text-gray-400" style={{ fontFamily: MONO }}>
+            <span>{totalWc} palavras</span>
+            <span>·</span>
+            <span>{sections.filter((s) => s.status === "pronto").length}/{sections.length} seções</span>
+          </div>
+          <div className="mt-2 h-0.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-full rounded-full transition-all" style={{ width: `${(sections.filter((s) => s.status === "pronto").length / sections.length) * 100}%`, backgroundColor: "#2d7a5a" }} />
+          </div>
+        </div>
+        <div className="p-2 space-y-0.5">
+          {sections.map((s) => {
+            const isSel = sel === s.id;
+            const words = wc(s);
+            const col = PS[s.status]?.c || "#999";
+            return (
+              <button key={s.id} onClick={() => setSel(s.id)}
+                className={`w-full text-left px-3 py-2.5 rounded transition-all ${isSel ? "bg-gray-50" : "hover:bg-gray-50"}`}>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-300 text-[10px] w-4" style={{ fontFamily: MONO }}>{s.num}</span>
+                  <span className={`text-xs flex-1 truncate ${isSel ? "text-gray-700" : "text-gray-500"}`}>{s.title}</span>
+                </div>
+                <div className="flex items-center gap-2 mt-1 ml-6">
+                  <span className="w-1 h-1 rounded-full" style={{ backgroundColor: col }} />
+                  <span className="text-[9px] tracking-wider" style={{ color: col, fontFamily: MONO }}>{PS[s.status]?.l}</span>
+                  {words > 0 && <span className="text-[9px] text-gray-300" style={{ fontFamily: MONO }}>{words}w</span>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main editor */}
+      <div className="flex-1 overflow-y-auto" style={{ backgroundColor: "#fafafa" }}>
+        <div className="max-w-3xl mx-auto py-10 px-8">
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-gray-300 text-xs" style={{ fontFamily: MONO }}>§{sec.num}</span>
+              <div className="flex gap-1">
+                {statuses.map((st) => (
+                  <button key={st} onClick={() => onUpdate(sec.id, { status: st })}
+                    className={`px-2 py-0.5 rounded text-[9px] tracking-wider transition-all ${sec.status === st ? "opacity-100" : "opacity-25 hover:opacity-50"}`}
+                    style={{ backgroundColor: `${PS[st].c}10`, color: PS[st].c, border: `1px solid ${PS[st].c}25`, fontFamily: MONO }}>{PS[st].l}</button>
+                ))}
+              </div>
+            </div>
+            <input value={sec.title} onChange={(e) => onUpdate(sec.id, { title: e.target.value })}
+              className="text-xl text-gray-700 bg-transparent border-none outline-none w-full placeholder-gray-300"
+              placeholder="título da seção" style={{ fontFamily: MONO, letterSpacing: "-0.01em" }} />
+          </div>
+
+          {sec.guide && (
+            <div className="mb-8 p-4 rounded bg-white border border-gray-100">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] uppercase tracking-widest" style={{ fontFamily: MONO, color: "#9a7209" }}>guia</span>
+              </div>
+              <p className="text-gray-400 text-sm leading-relaxed">{sec.guide}</p>
+            </div>
+          )}
+
+          {sec.nodes?.length > 0 && (
+            <div className="mb-8">
+              <h4 className="text-[10px] text-gray-400 uppercase tracking-widest mb-2" style={{ fontFamily: MONO }}>nós mobilizados</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {sec.nodes.map((nid) => {
+                  const n = nodes.find((x) => x.id === nid);
+                  if (!n) return null;
+                  const col = GC[n.group] || "#999";
+                  return (
+                    <span key={nid} className="px-2 py-1 rounded text-[10px] flex items-center gap-1.5 tracking-wider"
+                      style={{ backgroundColor: "white", color: col, border: `1px solid ${col}30`, fontFamily: MONO }}>
+                      <span className="w-1 h-1 rounded-full" style={{ backgroundColor: col }} />
+                      {n.label}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-[10px] text-gray-400 uppercase tracking-widest" style={{ fontFamily: MONO }}>narrativa</h4>
+              <span className="text-[10px] text-gray-300" style={{ fontFamily: MONO }}>{wc(sec)} palavras</span>
+            </div>
+            <textarea value={sec.body || ""} onChange={(e) => onUpdate(sec.id, { body: e.target.value })}
+              placeholder="escreva o conteúdo desta seção..."
+              className="w-full bg-white text-gray-600 rounded px-6 py-5 text-sm leading-relaxed border border-gray-100 outline-none focus:border-gray-300 resize-none transition-colors"
+              style={{ minHeight: 280, fontFamily: SERIF }} />
+          </div>
+
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[10px] uppercase tracking-widest" style={{ fontFamily: MONO, color: "#6b4d94" }}>↺ nota recursiva</span>
+              <span className="text-[10px] text-gray-300">o que escrever esta seção revelou sobre o argumento</span>
+            </div>
+            <textarea value={sec.recursive || ""} onChange={(e) => onUpdate(sec.id, { recursive: e.target.value })}
+              placeholder="que reconfiguração aconteceu?"
+              className="w-full bg-white text-gray-500 rounded px-5 py-3 text-xs leading-relaxed outline-none resize-none transition-colors"
+              style={{ minHeight: 80, fontStyle: "italic", border: "1px solid #6b4d9420", fontFamily: SERIF }} />
+          </div>
+
+          <div className="flex justify-between pt-4 border-t border-gray-100">
+            {sections.findIndex((s) => s.id === sel) > 0 ? (
+              <button onClick={() => setSel(sections[sections.findIndex((s) => s.id === sel) - 1].id)}
+                className="text-[10px] text-gray-400 hover:text-gray-600 transition-colors tracking-wider" style={{ fontFamily: MONO }}>← anterior</button>
+            ) : <div />}
+            {sections.findIndex((s) => s.id === sel) < sections.length - 1 ? (
+              <button onClick={() => setSel(sections[sections.findIndex((s) => s.id === sel) + 1].id)}
+                className="text-[10px] text-gray-400 hover:text-gray-600 transition-colors tracking-wider" style={{ fontFamily: MONO }}>próxima →</button>
+            ) : <div />}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN — minimal header, white chrome
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function MindhiveDashboard() {
+  const [tab, setTab] = useState("rizoma");
+  const [state, dispatch] = useReducer(reducer, { nodes: CONCEPTS, edges: EDGES });
+  const [memories] = useState(MEMORIES);
+  const [paper, setPaper] = useState(PAPER_INIT);
+
+  const updateSection = (id, fields) => {
+    setPaper((prev) => prev.map((s) => s.id === id ? { ...s, ...fields } : s));
+  };
+
+  return (
+    <div className="w-full h-screen bg-white text-gray-700 flex flex-col overflow-hidden" style={{ fontFamily: MONO }}>
+      <div className="flex-none border-b border-gray-200">
+        <div className="flex items-center justify-between px-5 py-2.5">
+          <div className="flex items-center gap-3">
+            <div className="w-1.5 h-1.5 rounded-full bg-gray-700" />
+            <span className="text-[11px] text-gray-700 uppercase tracking-widest" style={{ fontFamily: MONO }}>mindhive</span>
+            <span className="text-gray-300 text-[10px] tracking-wider" style={{ fontFamily: MONO }}>pesquisa recursiva aplicada</span>
+          </div>
+          <div className="flex items-center gap-0.5">
+            {[{ id: "rizoma", label: "rizoma" }, { id: "paper", label: "paper" }, { id: "memory", label: "memória" }].map((t) => (
+              <button key={t.id} onClick={() => setTab(t.id)}
+                className={`px-4 py-1.5 text-[10px] rounded transition-all uppercase tracking-widest ${tab === t.id ? "bg-gray-100 text-gray-700" : "text-gray-400 hover:text-gray-600"}`}
+                style={{ fontFamily: MONO }}>{t.label}</button>
+            ))}
+          </div>
+          <span className="text-[10px] text-gray-300 tracking-wider" style={{ fontFamily: MONO }}>{state.nodes.length}n · {state.edges.length}e · {memories.length}m</span>
+        </div>
+      </div>
+      <div className="flex-1 overflow-hidden">
+        {tab === "rizoma" && <Rizoma state={state} dispatch={dispatch} />}
+        {tab === "paper" && <Paper sections={paper} onUpdate={updateSection} nodes={state.nodes} />}
+        {tab === "memory" && <Memory memories={memories} nodes={state.nodes} />}
+      </div>
+    </div>
+  );
+}
+
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // STANDALONE: localStorage persistence + reset
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    const STORAGE_KEY = "mindhive-dashboard-v6";
+
+    function loadState(key, fallback) {
+      try {
+        const d = localStorage.getItem(`${STORAGE_KEY}-${key}`);
+        return d ? JSON.parse(d) : fallback;
+      } catch { return fallback; }
+    }
+
+    function saveState(key, data) {
+      try { localStorage.setItem(`${STORAGE_KEY}-${key}`, JSON.stringify(data)); } catch {}
+    }
+
+    function resetAll() {
+      if (confirm("resetar tudo para o estado original? edições serão perdidas.")) {
+        localStorage.removeItem(`${STORAGE_KEY}-graph`);
+        localStorage.removeItem(`${STORAGE_KEY}-paper`);
+        window.location.reload();
+      }
+    }
+
+    // Wrap the main component with persistence
+    function MindhiveDashboardPersistent() {
+      const [tab, setTab] = useState("rizoma");
+      const [state, dispatch] = useReducer(reducer, null, () => loadState("graph", { nodes: CONCEPTS, edges: EDGES }));
+      const [memories] = useState(MEMORIES);
+      const [paper, setPaper] = useState(() => loadState("paper", PAPER_INIT));
+
+      useEffect(() => { saveState("graph", state); }, [state]);
+      useEffect(() => { saveState("paper", paper); }, [paper]);
+
+      const updateSection = (id, fields) => {
+        setPaper((prev) => prev.map((s) => s.id === id ? { ...s, ...fields } : s));
+      };
+
+      return (
+        <div className="w-full h-screen bg-white text-gray-700 flex flex-col overflow-hidden" style={{ fontFamily: MONO }}>
+          <div className="flex-none border-b border-gray-200">
+            <div className="flex items-center justify-between px-5 py-2.5">
+              <div className="flex items-center gap-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-gray-700" />
+                <span className="text-[11px] text-gray-700 uppercase tracking-widest" style={{ fontFamily: MONO }}>mindhive</span>
+                <span className="text-gray-300 text-[10px] tracking-wider" style={{ fontFamily: MONO }}>pesquisa recursiva aplicada</span>
+              </div>
+              <div className="flex items-center gap-0.5">
+                {[{ id: "rizoma", label: "rizoma" }, { id: "paper", label: "paper" }, { id: "memory", label: "memória" }].map((t) => (
+                  <button key={t.id} onClick={() => setTab(t.id)}
+                    className={`px-4 py-1.5 text-[10px] rounded transition-all uppercase tracking-widest ${tab === t.id ? "bg-gray-100 text-gray-700" : "text-gray-400 hover:text-gray-600"}`}
+                    style={{ fontFamily: MONO }}>{t.label}</button>
+                ))}
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] text-gray-300 tracking-wider" style={{ fontFamily: MONO }}>{state.nodes.length}n · {state.edges.length}e · {memories.length}m</span>
+                <button onClick={resetAll} className="text-[9px] text-gray-300 hover:text-gray-500 tracking-widest uppercase transition-colors" style={{ fontFamily: MONO }}>reset</button>
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            {tab === "rizoma" && <Rizoma state={state} dispatch={dispatch} />}
+            {tab === "paper" && <Paper sections={paper} onUpdate={updateSection} nodes={state.nodes} />}
+            {tab === "memory" && <Memory memories={memories} nodes={state.nodes} />}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(
+      React.createElement(MindhiveDashboardPersistent)
+    );
+  </script>
+</body>
+</html>
