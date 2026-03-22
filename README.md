@@ -50,7 +50,7 @@ A plataforma foi construída ao longo de mais de 600 iterações de desenvolvime
 
 A T4P é simultaneamente o objeto de estudo e o instrumento de investigação. É research-through-artifact no sentido forte: a tese candidata (auto-observação recursiva produz conhecimento inacessível à análise linear) é testada pela própria operação da plataforma. Os índices de complexidade que a T4P computa em tempo real são a evidência empírica candidata — e eles só existem enquanto o sistema opera. Desligar a T4P é desligar a evidência. Isso é o que "inacessível à análise linear" significa operacionalmente: o código-fonte não contém os índices; os índices emergem da execução.
 
-O código completo está disponível em [github.com/altashoras-franskk/Tabom-T4P](https://github.com/altashoras-franskk/Tabom-T4P).
+O código completo está disponível em [github.com/altashoras-franskk/Tabom-T4P](https://github.com/altashoras-franskk/Tabom-T4P). E o protótipo (em versão experimental) no link: https://radical.institute
 
 ## O Dashboard — Como Ler e Usar
 
